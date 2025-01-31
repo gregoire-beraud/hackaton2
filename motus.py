@@ -156,13 +156,15 @@ class Hidden:
         red_indices = {
             index for index, (ct, ch) in enumerate(zip(typed, self.word))
             if ct == ch}
-        yellow_indices = {
-            index for index, (ct, ch) in enumerate(zip(typed, self.word))
-            if index not in red_indices
-            and ct in self.word
-        }
+        restants_hidden = [ch for index, ch in enumerate(self.word) if index not in red_indices]
+        restants_typed = [ct for index, ct in enumerate(typed) if index not in red_indices]
 
-        # fill the result
+        yellow_indices = set()
+    
+        for index, char in enumerate(restants_typed):
+            if char in restants_hidden:
+                restants_hidden[restants_hidden.index(char)] = ''  
+                yellow_indices.add(index)  
         result = []
         for i in range(len(self)):
             if i in red_indices:
