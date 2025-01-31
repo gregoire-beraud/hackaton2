@@ -121,6 +121,9 @@ class Attempt:
             char for char, color in zip(self.word, self.answer) if color == Color.BLUE
         }
         return apparently_not_there - definitely_there
+    
+    def success(self, mot) -> bool:
+        return self.word == mot
 
 
 # define this alias for type hinting
