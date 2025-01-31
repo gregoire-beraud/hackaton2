@@ -6,7 +6,7 @@ from pathlib import Path
 from itertools import islice
 from functools import reduce
 from enum import Enum, auto
-
+from typing import Optional
 """
 auto can be used in place of a value. If used, the Enum machinery will call an Enum's _generate_next_value_() to get an appropriate value. For Enum and IntEnum that appropriate value will be the last value plus one; for Flag and IntFlag it will be the first power-of-two greater than the highest value; for StrEnum it will be the lower-cased version of the member's name. Care must be taken if mixing auto() with manually specified values.
 
@@ -43,7 +43,7 @@ class Color(Enum):
         else:
             beg, end = Back.BLUE, Style.RESET_ALL
         return f"{beg} {message} {end} "
-
+    
     def __eq__(self, other):
         # surprisingly this is required...
         return self.name == other.name
@@ -83,8 +83,7 @@ class Attempt:
         self.answer = answer
 
     def __repr__(self):
-        return "".join(color.outline(f"{char}")
-                       for char, color in zip(self.word, self.answer))
+        return "".join(color.outline(char)for char, color in zip(self.word, self.answer))
 
     def __iter__(self):
         """
@@ -200,19 +199,15 @@ class Dictionary:
             if len(word) == length:
                 yield word
 
-    def sample_of_length(self, length) -> str:
+    def sample_of_length(self, length: int) -> Optional[str]:
         """
-        for convenience, returns one word of length length
+        For convenience, returns one word of length 'length'.
+        If no word of that length exists, returns None.
         """
-        # we have already the logic to extract all words, so just take
-        # the first one using islice, because all_words_of_length())
-        # returns an iterator, so we cannot use regular [] here
-        # also, nicely handle the case where length is too large
-        # and there is not word of that length
         try:
             return next(islice(self.all_words_of_length(length), None, 1))
         except StopIteration:
-            pass
+            return None
 
     def compatible_words(self, attempts: Attempts, length) -> set[str]:
         """
@@ -264,3 +259,4 @@ def show_example(hidden, word) -> None:
     print(f"with hidden word : {_hidden(hidden)}")
     print(f"   you would get : {Hidden(hidden).attempt(word)}")
     print(f"         because : {Hidden(word).attempt(hidden)}")
+
