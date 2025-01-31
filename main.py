@@ -1,16 +1,21 @@
 from motus import Attempt, Answer, Color
+import motus as mt
+import sys
+##################### traite le hidden choisi ############
+dico = mt.Dictionary("data/ods6.txt")
 
-def get_color_input():
-    color_input = input("Entrez les couleurs (R pour rouge, J pour jaune, etc.) : ")
-    color_map = {'R': Color.RED, 'J': Color.YELLOW, 'B': Color.BLUE}  # Ajoutez d'autres couleurs si nécessaire
-    return [color_map[char] for char in color_input]
+if len(sys.argv) > 1:
+    word = sys.argv[1] 
+    if not word in dico :
+        raise ValueError(f"le mot {word} n'est pas dans le dictionnaire")
 
-def main():
-    word = input("Entrez un mot : ")
-    colors = get_color_input()
-    answer = Answer(*colors)
-    attempt = Attempt(word, answer)
-    print(attempt)
+if len(sys.argv) < 2:
+    lenght = int(input("Entrez la longueur du mot à trouver : "))
+    word = dico.sample_of_length(lenght)
+    
 
-if __name__ == "__main__":
-    main()
+mot_cachee = mt.Hidden(word)
+print(mot_cachee)
+
+
+
