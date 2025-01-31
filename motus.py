@@ -136,44 +136,55 @@ class Hidden:
         return len(self.word)
 
     def attempt(self, typed: str) -> Attempt:
-        """
-        compares the typed answer with the hidden word
-        and returns an Attempt object that summarizes the result
-
-        there is a subtlety with chars appearing several times,
-        so a few examples:
-
-        | hidden | typed | result | comment |
-        | ABC    | AAA   | RBB    | a single match |
-        | ABCA   | AAAA  | RBBR   | two matches    |
-        | ABCA   | AAAY  | RBYB   | one exact match and one partial |
-
-        this version is clearly broken and you job is to fix it
-        """
-        if len(self) != len(typed):
-            raise ValueError(f"length mismatch {len(self)} != {len(typed)}")
-        # first pass is to spot exact matches
-        red_indices = {
-            index for index, (ct, ch) in enumerate(zip(typed, self.word))
-            if ct == ch}
-        restants_hidden = [ch for index, ch in enumerate(self.word) if index not in red_indices]
-        restants_typed = [ct for index, ct in enumerate(typed) if index not in red_indices]
-
-        yellow_indices = set()
+            """
+            compares the typed answer with the hidden word
+            and returns an Attempt object that summarizes the result
     
-        for index, char in enumerate(restants_typed):
-            if char in restants_hidden:
-                restants_hidden[restants_hidden.index(char)] = ''  
-                yellow_indices.add(index)  
-        result = []
-        for i in range(len(self)):
-            if i in red_indices:
-                result.append(Color.RED)
-            elif i in yellow_indices:
-                result.append(Color.YELLOW)
-            else:
-                result.append(Color.BLUE)
-        return Attempt(typed, Answer(*result))
+            there is a subtlety with chars appearing several times,
+            so a few examples:
+    
+            | hidden | typed | result | comment |
+            | ABC    | AAA   | RBB    | a single match |
+            | ABCA   | AAAA  | RBBR   | two matches    |
+            | ABCA   | AAAY  | RBYB   | one exact match and one partial |
+    
+            this version is clearly broken and you job is to fix it
+            """
+            if len(self) != len(typed):
+                raise ValueError(f"length mismatch {len(self)} != {len(typed)}")
+            # first pass is to spot exact matches
+            red_indices = {
+                index for index, (ct, ch) in enumerate(zip(typed, self.word))
+                if ct == ch}
+            
+            typed_sans_r = list(typed)
+            for i in red_indices:
+                typed_sans_r[i] = "0"
+            typed_sans_r = "".join(typed_sans_r)
+            print(typed_sans_r)
+    
+            hidden_sans_r = list(self.word)
+            for i in red_indices:
+                hidden_sans_r[i] = "0"
+            hidden_sans_r = "".join(hidden_sans_r)
+            print(hidden_sans_r)
+    
+            yellow_indices = {
+                index for index, (ct, ch) in enumerate(zip(typed_sans_r, hidden_sans_r))
+                if index not in red_indices
+                and ct in hidden_sans_r
+            }
+            
+            # fill the result
+            result = []
+            for i in range(len(self)):
+                if i in red_indices:
+                    result.append(Color.RED)
+                elif i in yellow_indices:
+                    result.append(Color.YELLOW)
+                else:
+                    result.append(Color.BLUE)
+            return Attempt(typed, Answer(*result))
 
 
 class Dictionary:
